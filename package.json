@@ -12,17 +12,10 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [{
-        "id": "custom-treeview",
-        "title": "Custom Tree View",
-        "icon": "resources/icon.svg"
-      }]
-    },
     "views": {
-      "custom-treeview": [
+      "explorer": [
         {
-          "id": "custom-file-tree",
+          "id": "file-tree-view",
           "name": "Custom File Tree"
         },
         {
@@ -30,6 +23,34 @@
           "name": "Custom tag tree"
         }
       ]
+    },
+    "commands": [
+      {  
+        "command": "customFileManager.addNode",  
+        "title": "添加节点",  
+        "icon": "$(add)"  
+      },  
+      {  
+        "command": "customFileManager.mapToFile",  
+        "title": "映射到文件",  
+        "icon": "$(link)"  
+      }
+    ],
+    "menus": {  
+      "view/title": [  
+        {  
+          "command": "customFileManager.addNode",  
+          "when": "view == customFileTree",  
+          "group": "navigation"  
+        }
+      ],  
+      "view/item/context": [  
+        {  
+          "command": "customFileManager.mapToFile",  
+          "when": "view == customFileTree && viewItem == folder",  
+          "group": "inline"  
+        }
+      ]  
     }
   },
   "scripts": {
