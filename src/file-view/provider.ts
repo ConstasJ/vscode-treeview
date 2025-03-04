@@ -128,6 +128,7 @@ export class FileTreeProvider implements vscode.TreeDataProvider<FileTreeItem>, 
 
     public renameNode(node: FileTreeItem, newName: string): void {
         node.label = newName;
+        node.tooltip = newName;
         this._onDidChangeTreeData.fire(node);
         this.saveTreeData();
     }
