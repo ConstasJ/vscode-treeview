@@ -40,7 +40,41 @@ export function activate(context: vscode.ExtensionContext) {
             if (fileUris && fileUris.length > 0) {  
               fileTreeProvider.mapNodeToFile(node, fileUris[0]);  
             }  
-          }),  
+          }),
+          vscode.commands.registerCommand('customFileManager.deleteNode', async (node) => {
+            const confirmation = await vscode.window.showWarningMessage(
+              `确定要删除节点 "${node.label}" 吗?`,
+              { modal: true },
+              '确定'
+            );
+            
+            if (confirmation === '确定') {
+              fileTreeProvider.removeNode(node);
+            }
+          }),
+          
+          vscode.commands.registerCommand('customFileManager.renameNode', async (node) => {
+            const newName = await vscode.window.showInputBox({
+              prompt: '输入新的节点名称',
+              placeHolder: node.label,
+              value: node.label
+            });
+            
+            if (newName && newName !== node.label) {
+              fileTreeProvider.renameNode(node, newName);
+            }
+          }),
+          
+          vscode.commands.registerCommand('customFileManager.addChildNode', async (node) => {
+            const nodeName = await vscode.window.showInputBox({
+              prompt: '输入子节点名称',
+              placeHolder: '新子节点'
+            });
+            
+            if (nodeName) {
+              fileTreeProvider.addNode(nodeName, node);
+            }
+          }),
       
           // 添加标签  
         //   vscode.commands.registerCommand('customFileManager.addTag', async () => {  

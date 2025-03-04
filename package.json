@@ -25,32 +25,62 @@
       ]
     },
     "commands": [
-      {  
-        "command": "customFileManager.addNode",  
-        "title": "添加节点",  
-        "icon": "$(add)"  
-      },  
-      {  
-        "command": "customFileManager.mapToFile",  
-        "title": "映射到文件",  
-        "icon": "$(link)"  
+      {
+        "command": "customFileManager.addNode",
+        "title": "添加节点",
+        "icon": "$(add)"
+      },
+      {
+        "command": "customFileManager.mapToFile",
+        "title": "映射到文件",
+        "icon": "$(link)"
+      },
+      {
+        "command": "customFileManager.deleteNode",
+        "title": "删除节点",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "customFileManager.renameNode",
+        "title": "重命名节点",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "customFileManager.addChildNode",
+        "title": "添加子节点",
+        "icon": "$(new-folder)"
       }
     ],
-    "menus": {  
-      "view/title": [  
-        {  
-          "command": "customFileManager.addNode",  
-          "when": "view == customFileTree",  
-          "group": "navigation"  
+    "menus": {
+      "view/title": [
+        {
+          "command": "customFileManager.addNode",
+          "when": "view == file-tree-view",
+          "group": "navigation"
         }
-      ],  
-      "view/item/context": [  
-        {  
-          "command": "customFileManager.mapToFile",  
-          "when": "view == customFileTree && viewItem == folder",  
-          "group": "inline"  
+      ],
+      "view/item/context": [
+        {
+          "command": "customFileManager.mapToFile",
+          "when": "view == file-tree-view && viewItem == folder",
+          "group": "inline"
+        },
+        {
+          "command": "customFileManager.addChildNode",
+          "when": "view == file-tree-view && viewItem == folder",
+          "group": "1_modification"
+        },
+        {
+          "command": "customFileManager.renameNode",
+          "when": "view == file-tree-view",
+          "group": "1_modification"
+        },
+        {
+          "command": "customFileManager.deleteNode",
+          "when": "view == file-tree-view",
+          "group": "1_modification"
         }
-      ]  
+      ]
     }
   },
   "scripts": {

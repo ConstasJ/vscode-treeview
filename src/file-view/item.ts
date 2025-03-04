@@ -22,7 +22,7 @@ export class FileTreeItem extends vscode.TreeItem {
         this.id = id;
         this.parent = parent;
 
-        this.iconPath = new vscode.ThemeIcon('file');
+        this.iconPath = vscode.ThemeIcon.Folder;
         this.contextValue = 'folder';
 
         this.tooltip = label;
