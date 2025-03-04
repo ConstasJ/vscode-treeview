@@ -6,8 +6,11 @@ export function activate(context: vscode.ExtensionContext) {
   // 初始化树视图数据提供者
   const fileTreeProvider = new FileTreeProvider(context);
   
-  // 注册树视图
-  vscode.window.registerTreeDataProvider('file-tree-view', fileTreeProvider);
+  // 注册树视图（支持拖放）
+  const fileTreeView = vscode.window.createTreeView('file-tree-view', {
+    treeDataProvider: fileTreeProvider,
+    dragAndDropController: fileTreeProvider
+  });
   
   // 注册命令
   const commands = [
@@ -76,8 +79,14 @@ export function activate(context: vscode.ExtensionContext) {
       }
     })
   ];
+
+  const fileChangeWatcher = vscode.workspace.createFileSystemWatcher('**/*');
+
+  fileChangeWatcher.onDidDelete(uri => {
+    fileTreeProvider.handleFileDeleted(uri);
+  });
   
-  context.subscriptions.push(...commands);
+  context.subscriptions.push(...commands, fileTreeView, fileChangeWatcher);
 }
 
 export function deactivate() {}
