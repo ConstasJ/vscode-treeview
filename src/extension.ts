@@ -1,6 +1,6 @@
 // src/extension.ts
 import * as vscode from 'vscode';
-import { FileTreeProvider, FileTreeItem, NodeType } from './file-view';
+import { FileTreeProvider, FileTreeItem, NodeType } from './freedom';
 
 export function activate(context: vscode.ExtensionContext) {
   // 初始化树视图数据提供者
