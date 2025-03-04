@@ -12,12 +12,25 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "treeview.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "viewsContainers": {
+      "activitybar": [{
+        "id": "custom-treeview",
+        "title": "Custom Tree View",
+        "icon": "resources/icon.svg"
+      }]
+    },
+    "views": {
+      "custom-treeview": [
+        {
+          "id": "custom-file-tree",
+          "name": "Custom File Tree"
+        },
+        {
+          "id": "custom-tag-tree",
+          "name": "Custom tag tree"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
