@@ -1,114 +1,83 @@
+// src/extension.ts
 import * as vscode from 'vscode';
-import { FileTreeProvider } from './file-view';
+import { FileTreeProvider, FileTreeItem, NodeType } from './file-view';
 
 export function activate(context: vscode.ExtensionContext) {
-	const fileTreeProvider = new FileTreeProvider(context);
-
-    const fileTreeView = vscode.window.createTreeView('file-tree-view', {
-        treeDataProvider: fileTreeProvider,
-        showCollapseAll: true,
-        canSelectMany: false,
-        dragAndDropController: fileTreeProvider,
-    });
-
-    const fileSystemWatcher = vscode.workspace.createFileSystemWatcher('**/*');
-
-    fileSystemWatcher.onDidDelete(uri => {
-        fileTreeProvider.handleFileDeleted(uri);
-    });
-
-    const commands = [
-        vscode.commands.registerCommand('customFileManager.addNode', async () => {  
-            const nodeName = await vscode.window.showInputBox({  
-              prompt: '输入节点名称',  
-              placeHolder: '新节点'  
-            });  
-            
-            if (nodeName) {  
-              fileTreeProvider.addNode(nodeName);  
-            }  
-          }),  
+  // 初始化树视图数据提供者
+  const fileTreeProvider = new FileTreeProvider(context);
+  
+  // 注册树视图
+  vscode.window.registerTreeDataProvider('file-tree-view', fileTreeProvider);
+  
+  // 注册命令
+  const commands = [
+    // 添加文件夹节点
+    vscode.commands.registerCommand('customFileManager.addNode', async () => {
+      const nodeName = await vscode.window.showInputBox({
+        prompt: '输入文件夹名称',
+        placeHolder: '新文件夹'
+      });
       
-          // 映射文件到节点  
-          vscode.commands.registerCommand('customFileManager.mapToFile', async (node) => {  
-            const fileUris = await vscode.window.showOpenDialog({  
-              canSelectFiles: true,  
-              canSelectFolders: false,  
-              canSelectMany: false  
-            });  
-            
-            if (fileUris && fileUris.length > 0) {  
-              fileTreeProvider.mapNodeToFile(node, fileUris[0]);  
-            }  
-          }),
-          vscode.commands.registerCommand('customFileManager.deleteNode', async (node) => {
-            const confirmation = await vscode.window.showWarningMessage(
-              `确定要删除节点 "${node.label}" 吗?`,
-              { modal: true },
-              '确定'
-            );
-            
-            if (confirmation === '确定') {
-              fileTreeProvider.removeNode(node);
-            }
-          }),
-          
-          vscode.commands.registerCommand('customFileManager.renameNode', async (node) => {
-            const newName = await vscode.window.showInputBox({
-              prompt: '输入新的节点名称',
-              placeHolder: node.label,
-              value: node.label
-            });
-            
-            if (newName && newName !== node.label) {
-              fileTreeProvider.renameNode(node, newName);
-            }
-          }),
-          
-          vscode.commands.registerCommand('customFileManager.addChildNode', async (node) => {
-            const nodeName = await vscode.window.showInputBox({
-              prompt: '输入子节点名称',
-              placeHolder: '新子节点'
-            });
-            
-            if (nodeName) {
-              fileTreeProvider.addNode(nodeName, node);
-            }
-          }),
-      
-          // 添加标签  
-        //   vscode.commands.registerCommand('customFileManager.addTag', async () => {  
-        //     const tagName = await vscode.window.showInputBox({  
-        //       prompt: '输入标签名称',  
-        //       placeHolder: '新标签'  
-        //     });  
-            
-        //     if (tagName) {  
-        //       tagTreeProvider.addTag(tagName);  
-        //     }  
-        //   }),  
-      
-          // 为文件添加标签  
-        //   vscode.commands.registerCommand('customFileManager.tagFile', async (fileItem) => {  
-        //     const availableTags = tagTreeProvider.getAllTags();  
-        //     const selectedTag = await vscode.window.showQuickPick(availableTags, {  
-        //       placeHolder: '选择标签'  
-        //     });  
-            
-        //     if (selectedTag && fileItem.fileUri) {  
-        //       tagTreeProvider.addFileToTag(selectedTag, fileItem.fileUri);  
-        //     }  
-        //   }),
-    ];
-
-    context.subscriptions.push(...commands, fileTreeView, fileSystemWatcher,
-        vscode.workspace.onDidRenameFiles(event => {
-            for (const { oldUri, newUri } of event.files) {
-                fileTreeProvider.handleFileRenamed(oldUri, newUri);
-            }
-        })
-    );
+      if (nodeName) {
+        fileTreeProvider.addFolderNode(nodeName);
+      }
+    }),
     
+    // 添加子文件夹节点
+    vscode.commands.registerCommand('customFileManager.addChildNode', async (node: FileTreeItem) => {
+      if (node.type !== NodeType.FOLDER) {
+        vscode.window.showErrorMessage('只能在文件夹下添加子文件夹');
+        return;
+      }
+      
+      const nodeName = await vscode.window.showInputBox({
+        prompt: '输入文件夹名称',
+        placeHolder: '新文件夹'
+      });
+      
+      if (nodeName) {
+        fileTreeProvider.addFolderNode(nodeName, node);
+      }
+    }),
+    
+    // 添加文件到文件夹
+    vscode.commands.registerCommand('customFileManager.addFile', async (node: FileTreeItem) => {
+      await fileTreeProvider.addFileToFolder(node);
+    }),
+    
+    // 从文件夹中移除文件
+    vscode.commands.registerCommand('customFileManager.removeFile', (node: FileTreeItem) => {
+      fileTreeProvider.removeFileFromFolder(node);
+    }),
+    
+    // 重命名节点
+    vscode.commands.registerCommand('customFileManager.renameNode', async (node: FileTreeItem) => {
+      const newName = await vscode.window.showInputBox({
+        prompt: '输入新名称',
+        placeHolder: node.label,
+        value: node.label
+      });
+      
+      if (newName && newName !== node.label) {
+        fileTreeProvider.renameNode(node, newName);
+      }
+    }),
+    
+    // 删除节点
+    vscode.commands.registerCommand('customFileManager.deleteNode', async (node: FileTreeItem) => {
+      const confirmation = await vscode.window.showWarningMessage(
+        `确定要删除${node.type === NodeType.FOLDER ? '文件夹' : '文件'} "${node.label}" 吗?`,
+        { modal: true },
+        '确定'
+      );
+      
+      if (confirmation === '确定') {
+        fileTreeProvider.removeNode(node);
+      }
+    })
+  ];
+  
+  context.subscriptions.push(...commands);
 }
 
 export function deactivate() {}

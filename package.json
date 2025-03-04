@@ -16,39 +16,40 @@
       "explorer": [
         {
           "id": "file-tree-view",
-          "name": "Custom File Tree"
-        },
-        {
-          "id": "custom-tag-tree",
-          "name": "Custom tag tree"
+          "name": "File Tree View"
         }
       ]
     },
     "commands": [
       {
         "command": "customFileManager.addNode",
-        "title": "添加节点",
+        "title": "添加文件夹",
         "icon": "$(add)"
       },
       {
-        "command": "customFileManager.mapToFile",
-        "title": "映射到文件",
-        "icon": "$(link)"
+        "command": "customFileManager.addChildNode",
+        "title": "添加子文件夹",
+        "icon": "$(new-folder)"
       },
       {
-        "command": "customFileManager.deleteNode",
-        "title": "删除节点",
-        "icon": "$(trash)"
+        "command": "customFileManager.addFile",
+        "title": "添加文件",
+        "icon": "$(file-add)"
+      },
+      {
+        "command": "customFileManager.removeFile",
+        "title": "移除文件",
+        "icon": "$(remove)"
       },
       {
         "command": "customFileManager.renameNode",
-        "title": "重命名节点",
+        "title": "重命名",
         "icon": "$(edit)"
       },
       {
-        "command": "customFileManager.addChildNode",
-        "title": "添加子节点",
-        "icon": "$(new-folder)"
+        "command": "customFileManager.deleteNode",
+        "title": "删除",
+        "icon": "$(trash)"
       }
     ],
     "menus": {
@@ -61,14 +62,19 @@
       ],
       "view/item/context": [
         {
-          "command": "customFileManager.mapToFile",
-          "when": "view == file-tree-view && viewItem == folder",
-          "group": "inline"
-        },
-        {
           "command": "customFileManager.addChildNode",
           "when": "view == file-tree-view && viewItem == folder",
           "group": "1_modification"
+        },
+        {
+          "command": "customFileManager.addFile",
+          "when": "view == file-tree-view && viewItem == folder",
+          "group": "1_modification"
+        },
+        {
+          "command": "customFileManager.removeFile",
+          "when": "view == file-tree-view && viewItem == file",
+          "group": "inline"
         },
         {
           "command": "customFileManager.renameNode",
