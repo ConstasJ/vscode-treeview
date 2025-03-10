@@ -6,9 +6,13 @@ export class TagTreeProvider implements vscode.TreeDataProvider<TagTreeItem> {
     private _onDidChangeTreeData = new vscode.EventEmitter<TagTreeItem | undefined>();
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-    private manager = TagManager.getInstance();
+    private manager: TagManager;
+    private context: vscode.ExtensionContext;
 
-    constructor() {}
+    constructor(context: vscode.ExtensionContext) {
+        this.context = context;
+        this.manager = new TagManager(context);
+    }
 
     public getManager(): TagManager {
         return this.manager;

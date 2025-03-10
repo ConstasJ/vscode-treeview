@@ -1,10 +1,12 @@
 // src/extension.ts
 import * as vscode from 'vscode';
 import { FileTreeProvider, FileTreeItem, NodeType } from './freedom';
+import { TagTreeProvider } from './tag/provider';
 
 export function activate(context: vscode.ExtensionContext) {
   // 初始化树视图数据提供者
   const fileTreeProvider = new FileTreeProvider(context);
+  const tagTreeProvider = new TagTreeProvider(context);
   
   // 注册树视图（支持拖放）
   const fileTreeView = vscode.window.createTreeView('file-tree-view', {

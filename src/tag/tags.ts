@@ -43,12 +43,14 @@ export class Tag {
 export class TagManager {
     private static instance: TagManager;
     private tags: Map<string, Tag> = new Map();
-    private constructor() {}
+    private readonly storageKey = 'tags';
+    private context: vscode.ExtensionContext;
+
+    public constructor(context: vscode.ExtensionContext) {
+        this.context = context;
+    }
 
     public static getInstance(): TagManager {
-        if (!TagManager.instance) {
-            TagManager.instance = new TagManager();
-        }
         return TagManager.instance;
     }
     
@@ -69,13 +71,70 @@ export class TagManager {
         return this.tags.get(name);
     }
 
-    public addTag(name: string) {
-        if (!this.tags.has(name)) {
-            this.tags.set(name, new Tag(name));
+    public addTag(name: string): Tag | undefined {
+        if (this.tags.has(name)) {
+            return undefined;
         }
+
+        const tag = new Tag(name);
+        this.tags.set(name, tag);
+        this.saveTagData();
+        return tag;
     }
 
     public removeTag(name: string) {
-        this.tags.delete(name);
+        const result = this.tags.delete(name);
+        if (result) {
+            this.saveTagData();
+        }
+        return result;
+    }
+
+    public addFileToTag(tagName: string, uri: vscode.Uri): boolean {
+        const tag = this.getTag(tagName);
+        if (!tag) {
+            return false;
+        }
+
+        const result = tag.addFile(uri);
+        if (result) {
+            this.saveTagData();
+        }
+        return result;
+    }
+
+    public removeFileFromTag(tagName: string, uri: vscode.Uri): boolean {
+        const tag = this.getTag(tagName);
+        if (!tag) {
+            return false;
+        }
+
+        const result = tag.removeFile(uri);
+        if (result) {
+            this.saveTagData();
+        }
+        return result;
+    }
+
+    public loadTagData(): void {
+        try {
+            const data = this.context.globalState.get<Tag[]>(this.storageKey);
+            if (data) {
+                data.forEach(tag => {
+                    this.tags.set(tag.name, new Tag(tag.name));
+                });
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    public saveTagData() {
+        try {
+            const tags = Array.from(this.tags.values());
+            this.context.globalState.update(this.storageKey, tags);
+        } catch(e) {
+            console.error(e);
+        }
     }
 }
