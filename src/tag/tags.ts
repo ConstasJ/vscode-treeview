@@ -86,6 +86,30 @@ export class TagManager {
         return result;
     }
 
+    public renameTag(oldName: string, newName: string): boolean {
+        if (oldName === newName) {
+            return true;
+        }
+
+        if (this.tags.has(newName)) {
+            return false;
+        }
+
+        const tag = this.tags.get(oldName);
+        if (!tag) {
+            return false;
+        }
+
+        const newTag = new Tag(newName);
+        tag.getFiles().forEach(uri => newTag.addFile(uri));
+
+        this.tags.delete(oldName);
+        this.tags.set(newName, newTag);
+
+        this.saveTagData();
+        return true;
+    }
+
     public addFileToTag(tagName: string, uri: vscode.Uri): boolean {
         const tag = this.getTag(tagName);
         if (!tag) {

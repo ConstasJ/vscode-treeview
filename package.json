@@ -17,6 +17,10 @@
         {
           "id": "file-tree-view",
           "name": "Tree View"
+        },
+        {
+          "id": "tag-tree-view",
+          "name": "标签视图"
         }
       ]
     },
@@ -50,6 +54,31 @@
         "command": "customFileManager.deleteNode",
         "title": "删除",
         "icon": "$(trash)"
+      },
+      {
+        "command": "customTagManager.addTag",
+        "title": "添加标签",
+        "icon": "$(add)"
+      },
+      {
+        "command": "customTagManager.addFile",
+        "title": "添加文件到标签",
+        "icon": "$(file-add)"
+      },
+      {
+        "command": "customTagManager.removeFile",
+        "title": "从标签中移除文件",
+        "icon": "$(close)"
+      },
+      {
+        "command": "customTagManager.renameTag",
+        "title": "重命名标签",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "customTagManager.deleteTag",
+        "title": "删除标签",
+        "icon": "$(trash)"
       }
     ],
     "menus": {
@@ -57,6 +86,11 @@
         {
           "command": "customFileManager.addNode",
           "when": "view == file-tree-view",
+          "group": "navigation"
+        },
+        {
+          "command": "customTagManager.addTag",
+          "when": "view == tag-tree-view",
           "group": "navigation"
         }
       ],
@@ -85,6 +119,24 @@
           "command": "customFileManager.deleteNode",
           "when": "view == file-tree-view",
           "group": "1_modification"
+        },
+        {
+          "command": "customTagManager.addFile",
+          "when": "view == tag-tree-view && viewItem == tag",
+          "group": "inline"
+        },
+        {
+          "command": "customTagManager.renameTag",
+          "when": "view == tag-tree-view && viewItem == tag"
+        },
+        {
+          "command": "customTagManager.deleteTag",
+          "when": "view == tag-tree-view && viewItem == tag"
+        },
+        {
+          "command": "customTagManager.removeFile",
+          "when": "view == tag-tree-view && viewItem == file",
+          "group": "inline"
         }
       ]
     }
