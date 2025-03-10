@@ -13,9 +13,13 @@ export function activate(context: vscode.ExtensionContext) {
     treeDataProvider: fileTreeProvider,
     dragAndDropController: fileTreeProvider
   });
+
+  const tagTreeView = vscode.window.createTreeView('tag-tree-view', {
+    treeDataProvider: tagTreeProvider
+  });
   
   // 注册命令
-  const commands = [
+  const fileCommands = [
     // 添加文件夹节点
     vscode.commands.registerCommand('customFileManager.addNode', async () => {
       const nodeName = await vscode.window.showInputBox({
@@ -82,13 +86,32 @@ export function activate(context: vscode.ExtensionContext) {
     })
   ];
 
+  const tagCommands = [
+    vscode.commands.registerCommand('customTagManager.addTag', async () => {
+      const tagName = await vscode.window.showInputBox({
+        prompt: '输入标签名称',
+        placeHolder: '新标签'
+      });
+
+      if (tagName) {
+        const exists = tagTreeProvider.getManager().getTag(tagName);
+        if (exists) {
+          vscode.window.showErrorMessage('标签已存在');
+          return;
+        }
+        tagTreeProvider.getManager().addTag(tagName);
+        tagTreeProvider.refresh();
+      }
+    }),
+  ]
+
   const fileChangeWatcher = vscode.workspace.createFileSystemWatcher('**/*');
 
   fileChangeWatcher.onDidDelete(uri => {
     fileTreeProvider.handleFileDeleted(uri);
   });
   
-  context.subscriptions.push(...commands, fileTreeView, fileChangeWatcher);
+  context.subscriptions.push(...fileCommands, fileTreeView, fileChangeWatcher);
 }
 
 export function deactivate() {}

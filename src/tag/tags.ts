@@ -41,17 +41,13 @@ export class Tag {
 }
 
 export class TagManager {
-    private static instance: TagManager;
     private tags: Map<string, Tag> = new Map();
     private readonly storageKey = 'tags';
     private context: vscode.ExtensionContext;
 
     public constructor(context: vscode.ExtensionContext) {
         this.context = context;
-    }
-
-    public static getInstance(): TagManager {
-        return TagManager.instance;
+        this.loadTagData();
     }
     
     public async loadTags() {
