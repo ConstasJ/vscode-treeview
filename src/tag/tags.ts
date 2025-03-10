@@ -2,18 +2,41 @@ import * as vscode from 'vscode';
 
 export class Tag {
     public name: string;
-    private fileUris: vscode.Uri[] = [];
+    private fileUris: Set<vscode.Uri> = new Set();
 
     constructor(name: string) {
         this.name = name;
     }
 
-    public addFile(uri: vscode.Uri) {
-        this.fileUris.push(uri);
+    public addFile(uri: vscode.Uri): boolean {
+        const uriString = uri.toString();
+        const exists = [...this.fileUris].some(existingUri => existingUri.toString() === uriString);
+
+        if(!exists) {
+            this.fileUris.add(uri);
+            return true;
+        }
+        return false;
     }
 
-    public removeFile(uri: vscode.Uri) {
-        this.fileUris = this.fileUris.filter(fileUri => fileUri.fsPath !== uri.fsPath);
+    public removeFile(uri: vscode.Uri): boolean {
+        const uriString = uri.toString();
+        const fileToRemove = [...this.fileUris].find(existingUri => existingUri.toString() === uriString);
+
+        if(fileToRemove) {
+            this.fileUris.delete(fileToRemove);
+            return true;
+        }
+        return false;
+    }
+
+    public hasFile(uri: vscode.Uri): boolean {
+        const uriString = uri.toString();
+        return [...this.fileUris].some(existingUri => existingUri.toString() === uriString);
+    }
+
+    public getFiles(): vscode.Uri[] {
+        return [...this.fileUris];
     }
 }
 
