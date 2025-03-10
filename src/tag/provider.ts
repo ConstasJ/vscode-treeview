@@ -10,6 +10,10 @@ export class TagTreeProvider implements vscode.TreeDataProvider<TagTreeItem> {
 
     constructor() {}
 
+    public getManager(): TagManager {
+        return this.manager;
+    }
+
     public addTag(name: string): void {
         this.manager.addTag(name);
         this.refresh();
