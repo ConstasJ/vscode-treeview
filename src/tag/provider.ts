@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { NodeType, TagTreeItem } from './item';
 import { Tag, TagManager } from './tags';
+import path from 'path';
 
 export class TagTreeProvider implements vscode.TreeDataProvider<TagTreeItem> {
     private _onDidChangeTreeData = new vscode.EventEmitter<TagTreeItem | undefined>();
@@ -37,10 +38,31 @@ export class TagTreeProvider implements vscode.TreeDataProvider<TagTreeItem> {
                 tag.name,
                 NodeType.TAG,
                 vscode.TreeItemCollapsibleState.Collapsed,
+                undefined,
+                tag
             ));
-        } else {
-            return element.children;
+        } else if (element.type === NodeType.TAG) {
+            const files = element.tag?.getFiles();
+            return files?.map(uri => {
+                const fileName = path.basename(uri.fsPath);
+                const fileItem = new TagTreeItem(
+                    fileName,
+                    NodeType.FILE,
+                    vscode.TreeItemCollapsibleState.None,
+                    uri.fsPath,
+                    element.tag,
+                    element
+                );
+                fileItem.command = {
+                    command: 'vscode.open',
+                    arguments: [uri],
+                    title: 'Open File'
+                };
+                return fileItem;
+            });
         }
+
+        return [];
     }
 
     getParent(element: TagTreeItem): vscode.ProviderResult<TagTreeItem> {
