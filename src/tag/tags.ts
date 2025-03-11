@@ -1,5 +1,10 @@
 import * as vscode from 'vscode';
 
+interface SerializedTag {
+    name: string;
+    fileUris: string[];
+}
+
 export class Tag {
     public name: string;
     private fileUris: Set<vscode.Uri> = new Set();
@@ -138,10 +143,12 @@ export class TagManager {
 
     public loadTagData(): void {
         try {
-            const data = this.context.globalState.get<Tag[]>(this.storageKey);
+            const data = this.context.globalState.get<SerializedTag[]>(this.storageKey);
             if (data) {
-                data.forEach(tag => {
-                    this.tags.set(tag.name, new Tag(tag.name));
+                data.forEach(sTag => {
+                    const tag = new Tag(sTag.name);
+                    sTag.fileUris.forEach(uri => tag.addFile(vscode.Uri.file(uri)));
+                    this.tags.set(tag.name, tag);
                 });
             }
         } catch (e) {
@@ -151,7 +158,11 @@ export class TagManager {
 
     public saveTagData() {
         try {
-            const tags = Array.from(this.tags.values());
+            const tags = Array.from(this.tags.values())
+                .map((tag) => ({
+                    name: tag.name,
+                    fileUris: [...tag.getFiles()].map(uri => uri.fsPath)
+                }));
             this.context.globalState.update(this.storageKey, tags);
         } catch(e) {
             console.error(e);

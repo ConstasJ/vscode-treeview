@@ -239,6 +239,29 @@ export function activate(context: vscode.ExtensionContext) {
         }
       }
     ),
+    vscode.commands.registerCommand(
+      "customTagManager.addTagToFile",
+      async (uri: vscode.Uri) => {
+        const existTags = manager.getTags();
+        const items = existTags.map((tag) => ({
+          label: tag.name,
+          picked: false,
+        }));
+        const selectedTags = await vscode.window.showQuickPick(
+          items,
+          {
+            canPickMany: true,
+            placeHolder: "选择标签",
+          }
+        );
+        if (selectedTags && selectedTags.length > 0) {
+          for (const tag of selectedTags) {
+            manager.addFileToTag(tag.label, uri);
+          }
+          tagTreeProvider.refresh();
+        }
+      }
+    )
   ];
 
   const fileChangeWatcher = vscode.workspace.createFileSystemWatcher("**/*");

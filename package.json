@@ -79,6 +79,11 @@
         "command": "customTagManager.deleteTag",
         "title": "删除标签",
         "icon": "$(trash)"
+      },
+      {
+        "command": "customTagManager.addTagToFile",
+        "title": "添加标签到文件",
+        "icon": "$(add)"
       }
     ],
     "menus": {
@@ -137,6 +142,12 @@
           "command": "customTagManager.removeFile",
           "when": "view == tag-tree-view && viewItem == file",
           "group": "inline"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "customTagManager.addTagToFile",
+          "group": "navigation"
         }
       ]
     }
